@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>A simple rectangle</title>
+  <style>
+    svg {
+      border-style: solid;
+      border-width: 1px;
+      border-color: #ccc;
+    }
+    rect {
+      stroke-width: 1;
+      stroke:steelblue;
+      fill:#888;
+      fill-opacity: .5;
+    }
+  </style>
+</head>
+
+<body>
+
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script>
+(function() {
+
+var makeData = function(n){
+  var arr = [];
+
+  for (var i=0; i<n; i++){
+    arr.push({
+      x:Math.floor((Math.random() * 100) + 1),
+      y:Math.floor((Math.random() * 100) + 1),
+      width:Math.floor((Math.random() * 100) + 1),
+      height:Math.floor((Math.random() * 100) + 1)
+    })
+  };
+
+  return arr;
+};
+
+var rectangles = function(svg) {
+  var data = makeData((Math.random() * 5) + 1);
+
+  var rect = svg.selectAll('rect').data(data);
+
+  // Enter
+  rect.enter().append('rect')
+    .attr('test', function(d,i) {
+      // Enter called 2 times only
+      console.log('enter placing inital rectangle: ', i)
+  });
+
+  // Update
+  rect.transition().duration(500).attr('x', function(d){ return d.x; })
+      .attr('y', function(d){ return d.y; })
+      .attr('width', function(d){ return d.width; })
+      .attr('height', function(d){ return d.height; })
+      .attr('test', function(d, i) {
+        // update every data change
+        console.log('updating x position to: ', d.x)
+      });
+
+  // Exit
+  rect.exit().attr('test', function(d) {
+    console.log('no data...')
+  }).remove();
+};
+
+var svg = d3.select("body")
+    .append("svg")
+    .attr("width", 200)
+    .attr("height", 200);
+
+rectangles(svg);
+
+setInterval(function(){
+  rectangles(svg);
+},1000);
+
+})();
+  </script>
+</body>
+</html>
+

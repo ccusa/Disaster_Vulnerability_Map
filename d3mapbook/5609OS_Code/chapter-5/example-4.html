@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mexico</title>
+  <style>
+    .boundary {
+      fill: #ccc;
+      stroke: #888;
+      stroke-linejoin: round;
+    }
+    svg {
+      border-style: solid;
+      border-width: 1px;
+      border-color: #ccc;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+
+  <script>
+  (function(){
+
+    var height = 600;
+    var width = 900;
+    var projection = d3.geo.orthographic().clipAngle(90);
+    var path = d3.geo.path().projection(projection);
+
+    var svg = d3.select("#map")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    d3.json('world.json', function(data) {
+      var countries = topojson.feature(data, data.objects.countries);
+      var map = svg.append('g').attr('class', 'boundary');
+      var world = map.selectAll('path').data(countries.features);
+
+      projection.scale(1).translate([0, 0]);
+      var b = path.bounds(countries);
+      var s = .9 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height);
+      var t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+      projection.scale(s).translate(t);
+
+      world.enter()
+        .append('path')
+        .attr('d', path);
+
+    });
+
+  })();
+ </script>
+</body>

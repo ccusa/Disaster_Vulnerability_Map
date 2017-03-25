@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+ .boundary {
+  fill: none;
+  stroke: #888;
+  stroke-linejoin: round;
+ }
+ svg {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #ccc;
+ }
+ text{
+  font-family: Helvetica;
+  font-weight: 300;
+  font-size: 12px;
+ }
+
+</style>
+<body>
+  <div id="map"></div>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+
+  <script>
+(function(){
+
+  var height = 600;
+  var width = 900;
+  var projection = d3.geo.mercator();
+  var mexico = void 0;
+
+  var path = d3.geo.path().projection(projection);
+
+  var svg = d3.select("#map")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+  d3.json('geo-data.json', function(data) {
+    var states = topojson.feature(data, data.objects.MEX_adm1);
+
+    var b, s, t;
+    projection.scale(1).translate([0, 0]);
+    var b = path.bounds(states);
+    var s = .9 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height);
+    var t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+    projection.scale(s).translate(t);
+
+    var map = svg.append('g').attr('class', 'boundary');
+    mexico = map.selectAll('path').data(states.features);
+
+    mexico.enter()
+       .append('path')
+       .attr('d', path);
+
+    var color = d3.scale.linear().domain([0,33]).range(['red', 'yellow']);
+    mexico
+      .style('fill', function(d,i) {return color(i)})
+      .style('fill-opacity', 0.2)
+
+    mexico.exit().remove();
+
+    d3.csv('cities.csv', function(cities) {
+      var cityPoints = svg.selectAll('circle').data(cities);
+      var cityText = svg.selectAll('text').data(cities);
+      var radius = d3.scale.linear().domain([0,100]).range([5,30]);
+
+      cityPoints.enter()
+          .append('circle')
+          .attr('cx', function(d) {return projection([d.lon, d.lat])[0]; })
+          .attr('cy', function(d) {return projection([d.lon, d.lat])[1]; })
+          .attr('r', function(d) {return radius(d.tequila); })
+          .attr('fill', 'steelblue');
+
+      cityText.enter()
+          .append('text')
+          .attr('x', function(d) {return projection([d.lon, d.lat])[0]})
+          .attr('y', function(d) {return projection([d.lon, d.lat])[1]})
+          .attr('dx', 5)
+          .attr('dy', 3)
+          .text(function(d) {return d.name});
+
+    });
+  });
+})();
+  </script>
+</body>

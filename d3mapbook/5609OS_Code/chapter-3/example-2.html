@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>A simple rectangle</title>
+  <style>
+    svg {
+      border-style: solid;
+      border-width: 1px;
+      border-color: #ccc;
+    }
+    rect {
+      stroke-width: 1;
+      stroke:steelblue;
+      fill:#888;
+      fill-opacity: .5;
+    }
+  </style>
+</head>
+
+<body>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script>
+(function() {
+
+  var svg = d3.select("body")
+      .append("svg")
+      .attr("width", 200)
+      .attr("height", 200);
+
+  svg.selectAll('rect').data([1,2]).enter()
+      .append('rect')
+      .attr('x', function(d){ return d*20; })
+      .attr('y', function(d){ return d*50; })
+      .attr("width",50)
+      .attr("height",100);
+
+})();
+  </script>
+</body>
+</html>
+
